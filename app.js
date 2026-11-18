@@ -12,7 +12,8 @@
   const state = {
     key: params.get('k') || saved.k || '',
     sel: params.has('g') ? parseSel(params.get('g')) : (saved.g ? parseSel(saved.g) : K.PRESETS.alles.groups.slice()),
-    view: ['liste', 'monat', 'jahr'].includes(params.get('v')) ? params.get('v') : 'jahr', // Startwert Jahresansicht
+    view: ['jahr', 'quartal', 'monat'].includes(params.get('v')) ? params.get('v') : 'jahr', // Startwert Jahresansicht
+    design: ['1', '2', '3'].includes(params.get('design')) ? params.get('design') : (['1', '2', '3'].includes(String(saved.d)) ? String(saved.d) : String(C.DESIGN || 1)),
     ferien: params.has('f') ? params.get('f') === '1' : (saved.f === undefined ? true : !!saved.f), // Ferien standardmäßig an
     past: false,
     month: null,
@@ -26,7 +27,7 @@
   const selParam = () => (state.sel.length === K.SELECTABLE.length ? 'alle' : state.sel.join(',') || 'keine');
 
   function persist() {
-    try { localStorage.setItem(STORE, JSON.stringify({ k: state.key, g: selParam(), v: state.view, f: state.ferien ? 1 : 0 })); } catch { /* privat */ }
+    try { localStorage.setItem(STORE, JSON.stringify({ k: state.key, g: selParam(), v: state.view, f: state.ferien ? 1 : 0, d: state.design })); } catch { /* privat */ }
     const p = new URLSearchParams();
     p.set('k', state.key); p.set('g', selParam()); p.set('v', state.view);
     p.set('f', state.ferien ? '1' : '0');
@@ -38,6 +39,8 @@
     const t = $('#toast'); t.textContent = msg; t.classList.add('show');
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms);
   }
+
+  document.documentElement.dataset.design = state.design;
 
   // ---------------- Start ----------------
   $('#title').textContent = C.TITLE;
@@ -111,7 +114,6 @@
       if (mv) { state.month = Math.min(11, Math.max(0, state.month + Number(mv.dataset.month))); render(); }
     });
     $('#ferien').addEventListener('change', e => { state.ferien = e.target.checked; changed(); });
-    $('#past').addEventListener('change', e => { state.past = e.target.checked; render(); });
     $('#btn-pdf').addEventListener('click', makePdf);
     $('#abo-copy').addEventListener('click', async () => {
       try { await navigator.clipboard.writeText(feedUrl()); toast('Abo-Link kopiert ✓'); }
@@ -151,9 +153,7 @@
   const label = g => (K.byslug[g] || {}).label || g;
 
   function render() {
-    const showPast = state.view === 'liste';
-    $('#past-wrap').hidden = !showPast || now.slice(0, 4) !== String(YEAR);
-    if (state.view === 'monat') renderMonth(); else if (state.view === 'jahr') renderYear(); else renderList();
+    if (state.view === 'monat') renderMonth(); else if (state.view === 'quartal') renderYear(3); else renderYear(6);
   }
 
   let holMap = K.holidayInfo(YEAR);
@@ -235,15 +235,15 @@
       <div class="mlist">${rows.map(r => r.html).join('') || '<p class="empty">Keine Termine in diesem Monat.</p>'}</div>`;
   }
 
-  function renderYear() {
+  function renderYear(perBlock = 6) {
     const hol = state.ferien ? K.holidayInfo(YEAR) : {};
     const byDay = {};
     filtered().forEach(e => K.eventDays(e).forEach(d => (byDay[d] = byDay[d] || []).push(e)));
     let html = '';
-    for (let half = 0; half < 2; half++) {
+    for (let half = 0; half < 12 / perBlock; half++) {
       let cols = '';
-      for (let c = 0; c < 6; c++) {
-        const m = half * 6 + c;
+      for (let c = 0; c < perBlock; c++) {
+        const m = half * perBlock + c;
         const days = new Date(YEAR, m + 1, 0).getDate();
         let rows = '';
         const labeled = new Set();
@@ -263,7 +263,8 @@
         }
         cols += `<div class="ycol"><div class="ym">${K.MONTHS[m]}</div>${rows}</div>`;
       }
-      html += `<h3 class="month-h ystatic">${half + 1}. Halbjahr ${YEAR}</h3><p class="yhint">↔ Zum Blättern seitlich wischen</p><div class="yscroll"><div class="year">${cols}</div></div>`;
+      const label = perBlock === 6 ? `${half + 1}. Halbjahr ${YEAR}` : `${half + 1}. Quartal ${YEAR}`;
+      html += `<h3 class="month-h ystatic">${label}</h3><p class="yhint">↔ Zum Blättern seitlich wischen</p><div class="yscroll"><div class="year${perBlock === 3 ? ' q' : ''}">${cols}</div></div>`;
     }
     if (state.ferien) html += '<p class="legend"><i class="sw fer"></i> Schulferien Bayern <i class="sw fei"></i> Feiertag</p>';
     $('#view').innerHTML = `<div class="ywide">${html}</div>`;
@@ -291,7 +292,7 @@
       const vis = K.visible(state.sel);
       window.KAL_PDF.create({
         year: YEAR, title: C.TITLE, subtitle: C.SUBTITLE, events: filtered(),
-        holidays: state.ferien ? K.holidayInfo(YEAR) : null, logo,
+        holidays: state.ferien ? K.holidayInfo(YEAR) : null, logo, theme: K.DESIGNS[state.design].pdf,
         groups: K.GROUPS.filter(g => vis.has(g.slug)), allGroups: state.sel.length === K.SELECTABLE.length,
       });
       toast('PDF ist fertig ✓');

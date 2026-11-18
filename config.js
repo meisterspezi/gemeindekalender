@@ -9,4 +9,6 @@ window.KAL_CONFIG = {
   // Überschrift
   TITLE: 'Gemeindekalender 2027',
   SUBTITLE: 'Freie Baptistengemeinde Eichstätt',
+  // Design: 1 = Weiß & Klar, 2 = Schwarz & Edel, 3 = Rot & Lebendig
+  DESIGN: 1,
 };

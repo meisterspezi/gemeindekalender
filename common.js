@@ -1,16 +1,17 @@
 // Gemeinsame Daten und Hilfsfunktionen für öffentliche Seite, PDF und Admin
 (function () {
+  // Gruppenfarben: Apple-Systemfarben, „Für alle“ in Logo-Schwarz
   const GROUPS = [
-    { slug: 'fuer-alle',        label: 'Für alle',              color: '#C99A06', always: true },
-    { slug: 'pastor',           label: 'Pastor & Überregional', color: '#6B7280' },
-    { slug: 'kinder',           label: 'Kinder',                color: '#2E9E4F' },
-    { slug: 'jugend',           label: 'Jugend',                color: '#EE7A12' },
-    { slug: 'kinder-jugend',    label: 'Kinder + Jugend',       color: '#8DB33A', derived: true },
-    { slug: 'junge-erwachsene', label: 'Junge Erwachsene',      color: '#1A9BD7' },
-    { slug: 'maenner',          label: 'Männer',                color: '#1E3F8C' },
-    { slug: 'frauen',           label: 'Frauen',                color: '#E0559A' },
-    { slug: 'ehepaare',         label: 'Ehepaare',              color: '#8A55C4' },
-    { slug: 'mission',          label: 'Mission & Einsätze',    color: '#C0392B' },
+    { slug: 'fuer-alle',        label: 'Für alle',              color: '#1D1D1F', always: true },
+    { slug: 'pastor',           label: 'Pastor & Überregional', color: '#8E8E93' },
+    { slug: 'kinder',           label: 'Kinder',                color: '#34C759' },
+    { slug: 'jugend',           label: 'Jugend',                color: '#FF9500' },
+    { slug: 'kinder-jugend',    label: 'Kinder + Jugend',       color: '#FFCC00', derived: true },
+    { slug: 'junge-erwachsene', label: 'Junge Erwachsene',      color: '#32ADE6' },
+    { slug: 'maenner',          label: 'Männer',                color: '#0040DD' },
+    { slug: 'frauen',           label: 'Frauen',                color: '#FF2D55' },
+    { slug: 'ehepaare',         label: 'Ehepaare',              color: '#AF52DE' },
+    { slug: 'mission',          label: 'Mission & Einsätze',    color: '#A2845E' },
   ];
   const SELECTABLE = GROUPS.filter(g => !g.always && !g.derived).map(g => g.slug);
   const PRESETS = {
@@ -98,7 +99,14 @@
     });
   }
 
-  window.KAL = {
+  // Designs (Web + PDF)
+  const DESIGNS = {
+    1: { name: 'Weiß & Klar',     pdf: { mFill: [255, 255, 255], mInk: [29, 29, 31], mLine: [227, 6, 19], title: [29, 29, 31] } },
+    2: { name: 'Schwarz & Edel',  pdf: { mFill: [29, 29, 31],   mInk: [255, 255, 255], mLine: null, title: [29, 29, 31], rule: [227, 6, 19] } },
+    3: { name: 'Rot & Lebendig',  pdf: { mFill: [215, 0, 21],   mInk: [255, 255, 255], mLine: null, title: [215, 0, 21] } },
+  };
+
+  window.KAL = { DESIGNS,
     GROUPS, SELECTABLE, PRESETS, byslug, visible, holidayInfo, FEIERTAGE, FERIEN,
     WD, WDL, MONTHS, pad, iso, parse, addDays, wd, dayDiff, fmtShort, fmtLong, today, timeText, dateText,
     eventDays, sortEvents, esc, loadScript,

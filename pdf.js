@@ -19,8 +19,10 @@
   function header(doc, o, sub) {
     let tx = M;
     if (o.logo) { try { doc.addImage(o.logo, 'PNG', M, 2.6, 12, 12); tx = M + 14.5; } catch (e) { /* ohne Logo */ } }
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(...BRAND);
+    const th = o.theme || {};
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(...(th.title || BRAND));
     doc.text(`${o.title} – ${sub}`, tx, 11.2);
+    if (th.rule) { doc.setFillColor(...th.rule); doc.rect(tx, 13, 40, 0.8, 'F'); }
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...MUTED);
     const auswahl = o.allGroups ? 'alle Gruppen' : o.groups.map(g => g.label).join(', ');
     doc.text(fit(doc, `${o.subtitle} · Auswahl: ${auswahl}`, 150), W - M, 8.5, { align: 'right' });
@@ -52,8 +54,10 @@
     for (let c = 0; c < 6; c++) {
       const m = half * 6 + c;
       const x = M + c * cw;
-      doc.setFillColor(...BRAND); doc.rect(x, top, cw - 0.6, headH, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(255, 255, 255);
+      const th = o.theme || { mFill: BRAND, mInk: [255, 255, 255] };
+      doc.setFillColor(...th.mFill); doc.rect(x, top, cw - 0.6, headH, 'F');
+      if (th.mLine) { doc.setFillColor(...th.mLine); doc.rect(x, top + headH - 0.7, cw - 0.6, 0.7, 'F'); }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...th.mInk);
       doc.text(K.MONTHS[m], x + (cw - 0.6) / 2, top + 4.9, { align: 'center' });
       const days = new Date(o.year, m + 1, 0).getDate();
       for (let d = 1; d <= 31; d++) {
@@ -63,14 +67,14 @@
         const wd = K.wd(ds);
         const fer = o.holidays && (o.holidays[ds] || {}).ferien;
         if (fer) { doc.setFillColor(...(wd === 0 ? [214, 229, 236] : wd === 6 ? [224, 236, 242] : [234, 243, 246])); doc.rect(x, y, cw - 0.6, rh, 'F'); }
-        else if (wd === 0) { doc.setFillColor(233, 230, 222); doc.rect(x, y, cw - 0.6, rh, 'F'); }
-        else if (wd === 6) { doc.setFillColor(245, 243, 238); doc.rect(x, y, cw - 0.6, rh, 'F'); }
+        else if (wd === 0) { doc.setFillColor(236, 236, 240); doc.rect(x, y, cw - 0.6, rh, 'F'); }
+        else if (wd === 6) { doc.setFillColor(247, 247, 249); doc.rect(x, y, cw - 0.6, rh, 'F'); }
         if (fer && !(byDay[ds] || []).length && !labeled.has(fer + m)) {
           labeled.add(fer + m);
           doc.setFont('helvetica', 'italic'); doc.setFontSize(5.8); doc.setTextColor(90, 120, 135);
           doc.text(fer, x + 9.4, y + rh / 2 + 1.0);
         }
-        doc.setDrawColor(215, 210, 200); doc.setLineWidth(0.15); doc.line(x, y + rh, x + cw - 0.6, y + rh);
+        doc.setDrawColor(222, 222, 228); doc.setLineWidth(0.15); doc.line(x, y + rh, x + cw - 0.6, y + rh);
         doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...INK);
         doc.text(String(d), x + 1, y + rh / 2 + 1.2);
         doc.setFont('helvetica', 'normal'); doc.setFontSize(6); doc.setTextColor(...MUTED);
