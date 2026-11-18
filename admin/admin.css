@@ -93,3 +93,5 @@ fieldset legend { font-weight: 700; padding: 0 6px; }
   .amonth .cell { min-height: 70px; }
   .amonth .e { font-size: .65rem; }
 }
+
+.top .logo { width: 52px; height: 52px; }

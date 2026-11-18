@@ -11,9 +11,12 @@
 </head>
 <body>
   <header class="top">
-    <div class="wrap">
-      <p class="eyebrow" id="subtitle">Freie Baptistengemeinde Eichstätt</p>
-      <h1 id="title">Gemeindekalender 2027</h1>
+    <div class="wrap brand">
+      <img src="logo.png" class="logo" alt="Logo Freie Baptisten Eichstätt" width="64" height="64">
+      <div>
+        <p class="eyebrow" id="subtitle">Freie Baptistengemeinde Eichstätt</p>
+        <h1 id="title">Gemeindekalender 2027</h1>
+      </div>
     </div>
   </header>
 
@@ -41,9 +44,9 @@
     <section id="ansicht" class="panel">
       <div class="viewbar">
         <div class="seg" role="group" aria-label="Ansicht">
+          <button data-view="jahr" aria-pressed="true">Jahr</button>
+          <button data-view="monat" aria-pressed="false">Monat</button>
           <button data-view="liste" aria-pressed="false">Liste</button>
-          <button data-view="monat" aria-pressed="true">Monat</button>
-          <button data-view="jahr" aria-pressed="false">Jahr</button>
         </div>
         <label class="switch small" id="past-wrap">
           <input type="checkbox" id="past"> <span>Vergangene Termine zeigen</span>

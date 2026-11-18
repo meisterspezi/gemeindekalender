@@ -17,8 +17,10 @@
   }
 
   function header(doc, o, sub) {
+    let tx = M;
+    if (o.logo) { try { doc.addImage(o.logo, 'PNG', M, 2.6, 12, 12); tx = M + 14.5; } catch (e) { /* ohne Logo */ } }
     doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(...BRAND);
-    doc.text(`${o.title} – ${sub}`, M, 12);
+    doc.text(`${o.title} – ${sub}`, tx, 11.2);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...MUTED);
     const auswahl = o.allGroups ? 'alle Gruppen' : o.groups.map(g => g.label).join(', ');
     doc.text(fit(doc, `${o.subtitle} · Auswahl: ${auswahl}`, 150), W - M, 8.5, { align: 'right' });

@@ -12,7 +12,7 @@
   const state = {
     key: params.get('k') || saved.k || '',
     sel: params.has('g') ? parseSel(params.get('g')) : (saved.g ? parseSel(saved.g) : K.PRESETS.alles.groups.slice()),
-    view: ['liste', 'monat', 'jahr'].includes(params.get('v')) ? params.get('v') : 'monat', // Startwert Monatsansicht
+    view: ['liste', 'monat', 'jahr'].includes(params.get('v')) ? params.get('v') : 'jahr', // Startwert Jahresansicht
     ferien: params.has('f') ? params.get('f') === '1' : (saved.f === undefined ? true : !!saved.f), // Ferien standardmäßig an
     past: false,
     month: null,
@@ -266,7 +266,18 @@
       html += `<h3 class="month-h ystatic">${half + 1}. Halbjahr ${YEAR}</h3><p class="yhint">↔ Zum Blättern seitlich wischen</p><div class="yscroll"><div class="year">${cols}</div></div>`;
     }
     if (state.ferien) html += '<p class="legend"><i class="sw fer"></i> Schulferien Bayern <i class="sw fei"></i> Feiertag</p>';
-    $('#view').innerHTML = html;
+    $('#view').innerHTML = `<div class="ywide">${html}</div>`;
+  }
+
+  // Logo für das PDF (einmal laden)
+  let logoData = null;
+  async function loadLogo() {
+    if (logoData) return logoData;
+    try {
+      const blob = await (await fetch('logo.png')).blob();
+      logoData = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
+    } catch { logoData = null; }
+    return logoData;
   }
 
   // ---------------- PDF ----------------
@@ -276,10 +287,11 @@
     toast('PDF wird erstellt …', 8000);
     try {
       await K.loadScript('vendor/jspdf.umd.min.js');
+      const logo = await loadLogo();
       const vis = K.visible(state.sel);
       window.KAL_PDF.create({
         year: YEAR, title: C.TITLE, subtitle: C.SUBTITLE, events: filtered(),
-        holidays: state.ferien ? K.holidayInfo(YEAR) : null,
+        holidays: state.ferien ? K.holidayInfo(YEAR) : null, logo,
         groups: K.GROUPS.filter(g => vis.has(g.slug)), allGroups: state.sel.length === K.SELECTABLE.length,
       });
       toast('PDF ist fertig ✓');
