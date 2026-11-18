@@ -13,7 +13,7 @@
     key: params.get('k') || saved.k || '',
     sel: params.has('g') ? parseSel(params.get('g')) : (saved.g ? parseSel(saved.g) : K.PRESETS.alles.groups.slice()),
     view: ['jahr', 'quartal', 'monat'].includes(params.get('v')) ? params.get('v') : 'jahr', // Startwert Jahresansicht
-    design: ['1', '2', '3'].includes(params.get('design')) ? params.get('design') : (['1', '2', '3'].includes(String(saved.d)) ? String(saved.d) : String(C.DESIGN || 1)),
+    design: String(C.DESIGN || 1), // festes Design (config.js)
     ferien: params.has('f') ? params.get('f') === '1' : (saved.f === undefined ? true : !!saved.f), // Ferien standardmäßig an
     past: false,
     month: null,
@@ -153,6 +153,7 @@
   const label = g => (K.byslug[g] || {}).label || g;
 
   function render() {
+    $('#legend').innerHTML = state.ferien ? '<span class="li"><i class="sw fer"></i> Schulferien Bayern</span><span class="li"><i class="sw fei"></i> Feiertag</span>' : '';
     if (state.view === 'monat') renderMonth(); else if (state.view === 'quartal') renderYear(3); else renderYear(6);
   }
 
@@ -231,7 +232,7 @@
         <button data-month="1" aria-label="Nächster Monat" ${m === 11 ? 'disabled' : ''}>›</button>
       </div>
       <div class="grid">${cells}</div>
-      ${state.ferien ? '<p class="legend"><i class="sw fer"></i> Schulferien Bayern <i class="sw fei"></i> Feiertag</p>' : ''}
+
       <div class="mlist">${rows.map(r => r.html).join('') || '<p class="empty">Keine Termine in diesem Monat.</p>'}</div>`;
   }
 
@@ -266,7 +267,6 @@
       const label = perBlock === 6 ? `${half + 1}. Halbjahr ${YEAR}` : `${half + 1}. Quartal ${YEAR}`;
       html += `<h3 class="month-h ystatic">${label}</h3><p class="yhint">↔ Zum Blättern seitlich wischen</p><div class="yscroll"><div class="year${perBlock === 3 ? ' q' : ''}">${cols}</div></div>`;
     }
-    if (state.ferien) html += '<p class="legend"><i class="sw fer"></i> Schulferien Bayern <i class="sw fei"></i> Feiertag</p>';
     $('#view').innerHTML = `<div class="ywide">${html}</div>`;
   }
 

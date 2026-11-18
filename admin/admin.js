@@ -4,7 +4,7 @@
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
   const SKEY = 'fbgKalenderAdmin';
-  try { const d = (JSON.parse(localStorage.getItem('fbgKalender') || '{}').d) || C.DESIGN || 1; document.documentElement.dataset.design = String(d); } catch { }
+  document.documentElement.dataset.design = String(C.DESIGN || 1);
   const YEAR = C.YEAR;
 
   const st = {

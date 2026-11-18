@@ -131,7 +131,13 @@ button { cursor: pointer; }
 .cell .fn { font-size: .66rem; color: #4b6a78; line-height: 1.15; font-style: italic; }
 .ev.inferien { background: linear-gradient(90deg, #fff 0, #fff 55%, var(--ferien) 100%); }
 .fertag { display: inline-block; margin-left: 8px; font-size: .78rem; color: #4b6a78; font-style: italic; }
-.legend { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: .85rem; color: var(--muted); margin: 8px 0 0; }
+.legend { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: .88rem; color: var(--muted); margin: 0; }
+.legend:empty { display: none; }
+.legend .li, #stand { white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.legend { gap: 14px; }
+.legend .sw.fei { margin-left: 0 !important; }
+
+.viewinfo { display: flex; align-items: center; justify-content: flex-end; gap: 22px; flex-wrap: wrap; flex: 1; color: var(--muted); font-size: .88rem; }
 .legend .sw { display: inline-block; width: 16px; height: 16px; border-radius: 4px; border: 1px solid #c9d6dc; }
 .legend .sw.fer { background: var(--ferien); }
 .legend .sw.fei { background: var(--feiertag); margin-left: 12px; border-color: #e7caca; }
@@ -220,3 +226,5 @@ button { cursor: pointer; }
   .mlist { display: block; }
 }
 @media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
+
+@media (max-width: 720px) { .viewinfo { flex-basis: 100%; justify-content: flex-start; gap: 6px 16px; } }

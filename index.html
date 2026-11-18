@@ -7,7 +7,7 @@
   <meta name="referrer" content="no-referrer">
   <title>Gemeindekalender – FBG Eichstätt</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='5' width='26' height='24' rx='4' fill='%231d4e5f'/%3E%3Crect x='3' y='5' width='26' height='7' rx='3' fill='%23c99a06'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css?v=20261118c">
+  <link rel="stylesheet" href="style.css?v=20261118d">
 </head>
 <body>
   <header class="top">
@@ -47,6 +47,10 @@
           <button data-view="jahr" aria-pressed="true">Jahr</button>
           <button data-view="quartal" aria-pressed="false">Quartal</button>
           <button data-view="monat" aria-pressed="false">Monat</button>
+        </div>
+        <div class="viewinfo">
+          <span class="legend" id="legend"></span>
+          <span id="stand"></span>
         </div>
       </div>
       <div id="view"></div>
@@ -111,11 +115,11 @@
   </main>
 
   <div id="toast" role="status" aria-live="polite"></div>
-  <footer class="foot wrap"><span id="stand"></span></footer>
+  <footer class="foot wrap"></footer>
 
-  <script src="config.js?v=20261118c"></script>
-  <script src="common.js?v=20261118c"></script>
-  <script src="pdf.js?v=20261118c"></script>
-  <script src="app.js?v=20261118c"></script>
+  <script src="config.js?v=20261118d"></script>
+  <script src="common.js?v=20261118d"></script>
+  <script src="pdf.js?v=20261118d"></script>
+  <script src="app.js?v=20261118d"></script>
 </body>
 </html>
