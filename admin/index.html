@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Admin – Gemeindekalender FBG Eichstätt</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap topbar">
+      <div>
+        <p class="eyebrow">Admin-Bereich</p>
+        <h1>Gemeindekalender</h1>
+      </div>
+      <div class="who" id="who" hidden>
+        <span id="who-name"></span>
+        <button class="btn light" id="btn-logout">Abmelden</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Anmeldung -->
+  <main class="wrap" id="login" hidden>
+    <form class="card login" id="login-form" autocomplete="on">
+      <h2>Anmelden</h2>
+      <label>Benutzername<input name="username" autocomplete="username" required autocapitalize="none"></label>
+      <label>Passwort<input name="password" type="password" autocomplete="current-password" required></label>
+      <p class="err" id="login-err" role="alert"></p>
+      <button class="btn primary big-btn" type="submit">Anmelden</button>
+    </form>
+  </main>
+
+  <!-- Hauptbereich -->
+  <main class="wrap" id="main" hidden>
+    <div class="undo-bar" id="undo-bar" hidden>
+      <span>Letzte Änderung: <strong id="undo-text"></strong></span>
+      <button class="btn" id="btn-undo">↶ Rückgängig</button>
+    </div>
+
+    <nav class="tabs" role="tablist">
+      <button data-tab="liste" aria-selected="true">Termine</button>
+      <button data-tab="monat">Monat</button>
+      <button data-tab="serien">Serien</button>
+      <button data-tab="papierkorb">Papierkorb <span class="badge" id="trash-count"></span></button>
+      <button data-tab="protokoll">Protokoll</button>
+      <button data-tab="daten">Import / Export</button>
+      <button data-tab="konto">Passwort</button>
+    </nav>
+
+    <div class="toolbar" id="toolbar">
+      <button class="btn primary" id="btn-new">＋ Neuer Termin</button>
+      <button class="btn" id="btn-new-series">＋ Neue Serie</button>
+      <select id="f-grp" aria-label="Gruppe filtern"><option value="">Alle Gruppen</option></select>
+      <label class="check"><input type="checkbox" id="f-unchecked"> Nur ungeprüft <span class="badge warn" id="unchecked-count"></span></label>
+      <input type="search" id="f-q" placeholder="Suchen …" aria-label="Suchen">
+    </div>
+
+    <section id="tab-liste" class="tab"></section>
+    <section id="tab-monat" class="tab" hidden></section>
+    <section id="tab-serien" class="tab" hidden></section>
+    <section id="tab-papierkorb" class="tab" hidden></section>
+    <section id="tab-protokoll" class="tab" hidden></section>
+    <section id="tab-daten" class="tab" hidden>
+      <div class="card">
+        <h2>Export (Sicherung)</h2>
+        <p>Alle aktuellen Termine als Datei herunterladen. Die Excel-Datei hat dasselbe Format wie die Import-Tabelle.</p>
+        <div class="row">
+          <button class="btn primary" id="btn-xlsx">Excel (.xlsx) herunterladen</button>
+          <button class="btn" id="btn-csv">CSV herunterladen</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Import (z. B. neue Jahrestabelle 2028)</h2>
+        <p>Spalten wie in der Vorlage: <em>Datum, Titel, Gruppe, Beginn, Ende, Bis (mehrtägig), Ort, Beschreibung, Prüfen / Hinweis</em>.
+          Zeilen mit Text in „Prüfen / Hinweis“ werden als <strong>ungeprüft</strong> markiert.</p>
+        <div class="row">
+          <input type="file" id="imp-file" accept=".xlsx,.xls,.csv">
+        </div>
+        <div class="row">
+          <label class="check"><input type="radio" name="imp-mode" value="add" checked> Termine hinzufügen</label>
+          <label class="check"><input type="radio" name="imp-mode" value="replace"> Alle Einzeltermine des Jahres
+            <input type="number" id="imp-year" min="2020" max="2100" style="width:6em"> vorher in den Papierkorb legen</label>
+        </div>
+        <div id="imp-preview"></div>
+      </div>
+    </section>
+    <section id="tab-konto" class="tab" hidden>
+      <form class="card login" id="pw-form">
+        <h2>Passwort ändern</h2>
+        <label>Altes Passwort<input type="password" name="old" autocomplete="current-password" required></label>
+        <label>Neues Passwort (mind. 10 Zeichen)<input type="password" name="new" autocomplete="new-password" minlength="10" required></label>
+        <label>Neues Passwort wiederholen<input type="password" name="new2" autocomplete="new-password" minlength="10" required></label>
+        <p class="err" id="pw-err" role="alert"></p>
+        <button class="btn primary" type="submit">Passwort speichern</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- Termin bearbeiten -->
+  <dialog id="dlg-event">
+    <form method="dialog" id="ev-form">
+      <h2 id="ev-title">Termin</h2>
+      <p class="info" id="ev-series-info" hidden></p>
+      <div class="grid2">
+        <label class="span2">Titel<input name="title" required maxlength="150"></label>
+        <label>Gruppe<select name="grp" required></select></label>
+        <label class="check ck-end"><input type="checkbox" name="allday"> Ganztägig (ohne Uhrzeit)</label>
+        <label>Datum<input type="date" name="start_date" required></label>
+        <label>Bis (bei mehrtägigen)<input type="date" name="end_date"></label>
+        <label class="time">Beginn<input type="time" name="start_time" step="300"></label>
+        <label class="time">Ende (leer = 1,5 Std.)<input type="time" name="end_time" step="300"></label>
+        <label class="span2">Ort (leer lassen, wenn unbekannt)<input name="location" maxlength="150" list="orte"></label>
+        <label class="span2">Beschreibung<textarea name="description" rows="3" maxlength="2000"></textarea></label>
+        <label class="check span2"><input type="checkbox" name="unchecked"> Ungeprüft (noch klären)</label>
+        <label class="span2">Prüfhinweis (nur für Admins sichtbar)<input name="note" maxlength="500"></label>
+      </div>
+      <p class="hint">Bitte keine Privatadressen oder Telefonnummern eintragen.</p>
+      <p class="err" id="ev-err" role="alert"></p>
+      <div class="dlg-actions">
+        <button type="button" class="btn danger" id="ev-delete">Löschen</button>
+        <button type="button" class="btn" id="ev-dup">Duplizieren</button>
+        <span class="grow"></span>
+        <button type="button" class="btn" value="cancel" id="ev-cancel">Abbrechen</button>
+        <button type="submit" class="btn primary" id="ev-save">Speichern</button>
+      </div>
+    </form>
+    <datalist id="orte"></datalist>
+  </dialog>
+
+  <!-- Serie -->
+  <dialog id="dlg-series">
+    <form method="dialog" id="se-form">
+      <h2 id="se-title">Serientermin</h2>
+      <div class="grid2">
+        <label class="span2">Titel<input name="title" required maxlength="150"></label>
+        <label>Gruppe<select name="grp" required></select></label>
+        <label>Ort<input name="location" maxlength="150" list="orte"></label>
+        <label class="time">Beginn (leer = ganztägig)<input type="time" name="start_time" step="300"></label>
+        <label class="time">Ende<input type="time" name="end_time" step="300"></label>
+        <fieldset class="span2">
+          <legend>Wiederholung</legend>
+          <label class="check"><input type="radio" name="type" value="monthly" checked> Monatlich am</label>
+          <span class="nths">
+            <label class="check"><input type="checkbox" name="nth" value="1"> 1.</label>
+            <label class="check"><input type="checkbox" name="nth" value="2"> 2.</label>
+            <label class="check"><input type="checkbox" name="nth" value="3"> 3.</label>
+            <label class="check"><input type="checkbox" name="nth" value="4"> 4.</label>
+            <label class="check"><input type="checkbox" name="nth" value="-1"> letzten</label>
+          </span>
+          <select name="mweekday"></select>
+          <br>
+          <label class="check"><input type="radio" name="type" value="weekly"> Wöchentlich am</label>
+          <span class="wdays"></span>
+          <label class="check">alle <input type="number" name="interval" min="1" max="8" value="1" style="width:4em"> Woche(n)</label>
+        </fieldset>
+        <label>Von<input type="date" name="from_date" required></label>
+        <label>Bis<input type="date" name="until_date" required></label>
+        <label class="span2">Beschreibung<textarea name="description" rows="2" maxlength="2000"></textarea></label>
+      </div>
+      <div class="preview" id="se-preview"></div>
+      <p class="err" id="se-err" role="alert"></p>
+      <div class="dlg-actions">
+        <button type="button" class="btn danger" id="se-delete">Serie löschen</button>
+        <span class="grow"></span>
+        <button type="button" class="btn" id="se-cancel">Abbrechen</button>
+        <button type="submit" class="btn primary">Serie speichern</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Rückfrage -->
+  <dialog id="dlg-confirm">
+    <form method="dialog">
+      <h2 id="cf-title">Sicher?</h2>
+      <p id="cf-text"></p>
+      <label id="cf-date-wrap" hidden>Datum<input type="date" id="cf-date"></label>
+      <div class="dlg-actions">
+        <span class="grow"></span>
+        <button class="btn" value="no">Abbrechen</button>
+        <button class="btn primary" value="yes" id="cf-yes">Ja</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../config.js"></script>
+  <script src="../common.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

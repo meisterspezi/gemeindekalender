@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Gemeindekalender – FBG Eichstätt</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='5' width='26' height='24' rx='4' fill='%231d4e5f'/%3E%3Crect x='3' y='5' width='26' height='7' rx='3' fill='%23c99a06'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <p class="eyebrow" id="subtitle">Freie Baptistengemeinde Eichstätt</p>
+      <h1 id="title">Gemeindekalender 2027</h1>
+    </div>
+  </header>
+
+  <main class="wrap" id="app" hidden>
+    <nav class="actions" aria-label="Hauptfunktionen">
+      <button class="action" data-go="ansicht" aria-pressed="true">
+        <span class="ico" aria-hidden="true">📅</span><span>Kalender ansehen</span>
+      </button>
+      <button class="action" id="btn-pdf">
+        <span class="ico" aria-hidden="true">📄</span><span>PDF herunterladen</span>
+      </button>
+      <button class="action" data-go="abo" aria-pressed="false">
+        <span class="ico" aria-hidden="true">📲</span><span>In meinen Kalender übernehmen</span>
+      </button>
+    </nav>
+
+    <section class="card filter" aria-labelledby="h-filter">
+      <h2 id="h-filter">Welche Gruppen möchten Sie sehen?</h2>
+      <div class="presets" role="group" aria-label="Schnellauswahl"></div>
+      <div class="chips" role="group" aria-label="Gruppen"></div>
+      <label class="switch">
+        <input type="checkbox" id="ferien"> <span>Schulferien &amp; Feiertage Bayern im Hintergrund zeigen</span>
+      </label>
+    </section>
+
+    <section id="ansicht" class="panel">
+      <div class="viewbar">
+        <div class="seg" role="group" aria-label="Ansicht">
+          <button data-view="liste" aria-pressed="true">Liste</button>
+          <button data-view="monat" aria-pressed="false">Monat</button>
+        </div>
+        <label class="switch small" id="past-wrap">
+          <input type="checkbox" id="past"> <span>Vergangene Termine zeigen</span>
+        </label>
+      </div>
+      <div id="view"></div>
+    </section>
+
+    <section id="abo" class="panel" hidden>
+      <div class="card">
+        <h2>Termine ins Handy übernehmen</h2>
+        <p class="lead">Sie abonnieren genau die Gruppen, die oben ausgewählt sind: <strong id="abo-groups"></strong>.
+          Änderungen der Gemeinde erscheinen danach <strong>automatisch</strong> in Ihrem Kalender.</p>
+        <div class="bigbtns">
+          <a class="big primary" id="abo-webcal" href="#">🍏 iPhone / iPad / Mac: Kalender abonnieren</a>
+          <a class="big" id="abo-google" href="#" target="_blank" rel="noopener">🤖 Android / Google Kalender: abonnieren</a>
+          <button class="big" id="abo-copy">🔗 Abo-Link kopieren</button>
+          <a class="big ghost" id="abo-ics" href="#">⬇️ Einmalig als Datei (.ics) herunterladen</a>
+        </div>
+        <p class="hint">Die Datei (.ics) ist nur eine Momentaufnahme und aktualisiert sich <em>nicht</em>. Besser ist das Abo.</p>
+
+        <details class="howto" open>
+          <summary>Anleitung iPhone</summary>
+          <ol>
+            <li>Auf <strong>„iPhone / iPad / Mac: Kalender abonnieren“</strong> tippen.</li>
+            <li>Bei der Frage „Kalender abonnieren?“ auf <strong>Abonnieren</strong> tippen.</li>
+            <li>Farbe wählen, falls gewünscht, dann oben rechts auf <strong>Hinzufügen</strong> tippen. Fertig.</li>
+            <li>Für schnelle Aktualisierung: <em>Einstellungen → Apps → Kalender → Accounts → Datenabgleich</em> auf <strong>Stündlich</strong> stellen.</li>
+          </ol>
+        </details>
+        <details class="howto">
+          <summary>Anleitung Android / Google Kalender</summary>
+          <ol>
+            <li>Auf <strong>„Android / Google Kalender: abonnieren“</strong> tippen. Es öffnet sich Google Kalender im Browser.
+              Mit dem Google-Konto anmelden, das auch auf dem Handy eingerichtet ist.</li>
+            <li>Bei „Kalender hinzufügen?“ auf <strong>Hinzufügen</strong> tippen.</li>
+            <li>In der <strong>Google Kalender-App</strong>: Menü ☰ → <em>Einstellungen</em> → „FBG Eichstätt“ antippen →
+              <strong>Synchronisieren</strong> einschalten.</li>
+            <li>Klappt der Knopf nicht: Auf dem Computer <em>calendar.google.com</em> öffnen → links bei „Weitere Kalender“ auf
+              <strong>+</strong> → <strong>Per URL</strong> → den kopierten Abo-Link einfügen.</li>
+          </ol>
+          <p class="hint">Google aktualisiert abonnierte Kalender von selbst, aber manchmal erst nach einigen Stunden.</p>
+        </details>
+        <details class="howto">
+          <summary>Anleitung Samsung Kalender</summary>
+          <ol>
+            <li>Zuerst wie bei <strong>Android / Google</strong> beschrieben abonnieren. Der Samsung Kalender übernimmt Abos über das Google-Konto.</li>
+            <li>Samsung Kalender öffnen → Menü ☰ → <strong>Kalender verwalten</strong> (oder Zahnrad → Kalender).</li>
+            <li>Unter dem Google-Konto <strong>„FBG Eichstätt“</strong> einschalten.</li>
+            <li>Erscheint nichts: Einstellungen des Handys → <em>Konten</em> → Google → <strong>Jetzt synchronisieren</strong>.</li>
+          </ol>
+        </details>
+        <p class="hint">Andere Gruppen gewünscht? Oben die Auswahl ändern und neu abonnieren. Das alte Abo können Sie in der
+          Kalender-App löschen.</p>
+      </div>
+    </section>
+  </main>
+
+  <main class="wrap" id="nokey" hidden>
+    <div class="card">
+      <h2>Bitte den persönlichen Link verwenden</h2>
+      <p>Dieser Kalender ist nur über den Link erreichbar, den die Gemeinde verschickt hat. Bitte öffnen Sie genau diesen Link,
+        zum Beispiel aus der E-Mail oder der Nachricht.</p>
+    </div>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <footer class="foot wrap"><span id="stand"></span></footer>
+
+  <script src="config.js"></script>
+  <script src="common.js"></script>
+  <script src="pdf.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
