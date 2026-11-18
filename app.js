@@ -12,7 +12,7 @@
   const state = {
     key: params.get('k') || saved.k || '',
     sel: params.has('g') ? parseSel(params.get('g')) : (saved.g ? parseSel(saved.g) : K.PRESETS.alles.groups.slice()),
-    view: params.get('v') || saved.v || 'liste',
+    view: ['liste', 'monat', 'jahr'].includes(params.get('v')) ? params.get('v') : 'monat', // Startwert Monatsansicht
     ferien: params.has('f') ? params.get('f') === '1' : (saved.f === undefined ? true : !!saved.f), // Ferien standardmäßig an
     past: false,
     month: null,
@@ -77,8 +77,6 @@
 
   // ---------------- Filter ----------------
   function buildFilter() {
-    const pre = document.querySelector('.presets');
-    pre.innerHTML = Object.entries(K.PRESETS).map(([id, p]) => `<button data-preset="${id}">${p.label}</button>`).join('');
     const chips = document.querySelector('.chips');
     chips.innerHTML = K.GROUPS.filter(g => !g.derived).map(g => g.always
       ? `<span class="chip locked" aria-pressed="true"><span class="dot" style="background:${g.color}">✓</span>${g.label} <span class="lock">(immer)</span></span>`
@@ -92,7 +90,6 @@
       b.querySelector('.dot').textContent = on ? '✓' : '';
     });
     const same = (a, b) => a.length === b.length && a.every(x => b.includes(x));
-    document.querySelectorAll('[data-preset]').forEach(b => b.setAttribute('aria-pressed', String(same(state.sel, K.PRESETS[b.dataset.preset].groups))));
     $('#ferien').checked = state.ferien;
     document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
     updateAbo();
@@ -106,8 +103,6 @@
         state.sel = state.sel.includes(g) ? state.sel.filter(x => x !== g) : [...state.sel, g];
         changed();
       }
-      const pre = e.target.closest('[data-preset]');
-      if (pre) { state.sel = K.PRESETS[pre.dataset.preset].groups.slice(); changed(); }
       const v = e.target.closest('[data-view]');
       if (v) { state.view = v.dataset.view; changed(); }
       const go = e.target.closest('[data-go]');
@@ -158,7 +153,7 @@
   function render() {
     const showPast = state.view === 'liste';
     $('#past-wrap').hidden = !showPast || now.slice(0, 4) !== String(YEAR);
-    if (state.view === 'monat') renderMonth(); else renderList();
+    if (state.view === 'monat') renderMonth(); else if (state.view === 'jahr') renderYear(); else renderList();
   }
 
   let holMap = K.holidayInfo(YEAR);
@@ -238,6 +233,40 @@
       <div class="grid">${cells}</div>
       ${state.ferien ? '<p class="legend"><i class="sw fer"></i> Schulferien Bayern <i class="sw fei"></i> Feiertag</p>' : ''}
       <div class="mlist">${rows.map(r => r.html).join('') || '<p class="empty">Keine Termine in diesem Monat.</p>'}</div>`;
+  }
+
+  function renderYear() {
+    const hol = state.ferien ? K.holidayInfo(YEAR) : {};
+    const byDay = {};
+    filtered().forEach(e => K.eventDays(e).forEach(d => (byDay[d] = byDay[d] || []).push(e)));
+    let html = '';
+    for (let half = 0; half < 2; half++) {
+      let cols = '';
+      for (let c = 0; c < 6; c++) {
+        const m = half * 6 + c;
+        const days = new Date(YEAR, m + 1, 0).getDate();
+        let rows = '';
+        const labeled = new Set();
+        for (let d = 1; d <= 31; d++) {
+          if (d > days) { rows += '<div class="yd none"></div>'; continue; }
+          const ds = `${YEAR}-${K.pad(m + 1)}-${K.pad(d)}`;
+          const w = K.wd(ds);
+          const h = hol[ds] || {};
+          const evs = byDay[ds] || [];
+          const cls = ['yd', w === 0 ? 'so' : w === 6 ? 'sa' : '', h.ferien ? 'ferien' : '', h.feiertag ? 'feiertag' : '', ds === now ? 'today' : ''].join(' ');
+          let inner = evs.slice(0, 2).map(e => `<span class="ye" style="--c:${color(e.grp)}" title="${K.esc(e.title)}">${e.start_time && e.start_date === ds ? e.start_time + ' ' : ''}${K.esc(e.title)}</span>`).join('');
+          if (evs.length > 2) inner += `<span class="ymore">+${evs.length - 2}</span>`;
+          if (!evs.length && h.feiertag) inner = `<span class="yh">${K.esc(h.feiertag)}</span>`;
+          else if (!evs.length && h.ferien && !labeled.has(h.ferien)) { labeled.add(h.ferien); inner = `<span class="yh">${K.esc(h.ferien)}</span>`; }
+          const tip = evs.map(e => `${e.start_time && e.start_date === ds ? e.start_time + ' ' : ''}${e.title}`).concat(h.feiertag || [], h.ferien || []).join(' · ');
+          rows += `<div class="${cls}" title="${K.esc(tip)}"><b>${d}</b><i>${K.WD[w]}</i><span class="yev">${inner}</span></div>`;
+        }
+        cols += `<div class="ycol"><div class="ym">${K.MONTHS[m]}</div>${rows}</div>`;
+      }
+      html += `<h3 class="month-h ystatic">${half + 1}. Halbjahr ${YEAR}</h3><p class="yhint">↔ Zum Blättern seitlich wischen</p><div class="yscroll"><div class="year">${cols}</div></div>`;
+    }
+    if (state.ferien) html += '<p class="legend"><i class="sw fer"></i> Schulferien Bayern <i class="sw fei"></i> Feiertag</p>';
+    $('#view').innerHTML = html;
   }
 
   // ---------------- PDF ----------------

@@ -150,8 +150,7 @@
     halfYear(doc, o, 0, byDay);
     doc.addPage('a4', 'landscape');
     halfYear(doc, o, 1, byDay);
-    doc.addPage('a4', 'landscape');
-    list(doc, o);
+    if (o.withList) { doc.addPage('a4', 'landscape'); list(doc, o); } // Terminliste nur auf Wunsch
     const name = `FBG-Kalender-${o.year}${o.allGroups ? '' : '-Auswahl'}.pdf`;
     if (o.returnDoc) return doc;
     doc.save(name);

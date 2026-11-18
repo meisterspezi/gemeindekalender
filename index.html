@@ -32,7 +32,6 @@
 
     <section class="card filter" aria-labelledby="h-filter">
       <h2 id="h-filter">Welche Gruppen möchten Sie sehen?</h2>
-      <div class="presets" role="group" aria-label="Schnellauswahl"></div>
       <div class="chips" role="group" aria-label="Gruppen"></div>
       <label class="switch">
         <input type="checkbox" id="ferien"> <span>Schulferien &amp; Feiertage Bayern im Hintergrund zeigen</span>
@@ -42,8 +41,9 @@
     <section id="ansicht" class="panel">
       <div class="viewbar">
         <div class="seg" role="group" aria-label="Ansicht">
-          <button data-view="liste" aria-pressed="true">Liste</button>
-          <button data-view="monat" aria-pressed="false">Monat</button>
+          <button data-view="liste" aria-pressed="false">Liste</button>
+          <button data-view="monat" aria-pressed="true">Monat</button>
+          <button data-view="jahr" aria-pressed="false">Jahr</button>
         </div>
         <label class="switch small" id="past-wrap">
           <input type="checkbox" id="past"> <span>Vergangene Termine zeigen</span>
